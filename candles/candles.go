@@ -5,12 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/kkastan/goanda/common"
 )
 
-// GetRecent returns the last N candles
-func GetRecent() *CandleResponse {
+// GetRecent returns the last <i>count</i> candles.
+// Simple wrapper of the Oanda v20 candles endpoint -
+// see http://developer.oanda.com/rest-live-v20/instrument-ep/
+func GetRecent(instrument, price, granularity string, count int32) *CandleResponse {
 	bearerToken := os.Getenv("OANDA_API_KEY")
-	url := "https://api-fxpractice.oanda.com/v3/instruments/EUR_USD/candles?count=6&price=M&granularity=M1"
+	baseURL := os.Getenv(common.FxAPIBaseURLEnvVarName)
+
+	url := fmt.Sprintf("%s/instruments/%s/candles?count=%d&price=%s&granularity=%s",
+		baseURL, instrument, count, price, granularity)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -32,17 +39,14 @@ func GetRecent() *CandleResponse {
 }
 
 // GetTimeRange returns the candles for the specified time range
-func GetTimeRange() *CandleResponse {
+// Simple time range wrapper of the Oanda v20 candles endpoint -
+// see http://developer.oanda.com/rest-live-v20/instrument-ep/
+func GetTimeRange(instrument, price, granularity, from, to string) *CandleResponse {
 	bearerToken := os.Getenv("OANDA_API_KEY")
-	//	url := "https://api-fxpractice.oanda.com/v3/instruments/EUR_USD/candles?price=M&granularity=M5"
+	baseURL := os.Getenv(common.FxAPIBaseURLEnvVarName)
 
-	// YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ
-	from := "2017-09-20T00:00:00.0Z"
-	to := "2017-09-21T00:00:00.0Z"
-	url := fmt.Sprintf("https://api-fxpractice.oanda.com/v3/instruments/%s/candles?price=%s&granularity=%s&from=%s&to=%s&includeFirst=true",
-		"EUR_USD", "M", "M5", from, to)
-
-	fmt.Printf("url: %s\n", url)
+	url := fmt.Sprintf("%s/instruments/%s/candles?price=%s&granularity=%s&from=%s&to=%s&includeFirst=true",
+		baseURL, instrument, price, granularity, from, to)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

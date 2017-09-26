@@ -6,12 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-)
 
-const (
-	apiKeyEnvVarName           = "OANDA_API_KEY"
-	accountIDEnvVarName        = "OANDA_ACCOUNT_ID"
-	streamAPIBaseURLEnvVarName = "OANDA_STREAM_API"
+	"github.com/kkastan/goanda/common"
 )
 
 // Ticker data structure
@@ -35,14 +31,15 @@ func (t *Ticker) Run() {
 
 func (t *Ticker) runInternal() {
 
-	baseURL := os.Getenv(streamAPIBaseURLEnvVarName)
-	accountID := os.Getenv(accountIDEnvVarName)
-	bearerToken := os.Getenv(apiKeyEnvVarName)
+	baseURL := os.Getenv(common.StreamAPIBaseURLEnvVarName)
+	accountID := os.Getenv(common.AccountIDEnvVarName)
+	bearerToken := os.Getenv(common.APIKeyEnvVarName)
 
 	if baseURL == "" || accountID == "" || bearerToken == "" {
 		panic(fmt.Sprintf("One or more of the following environment variables "+
 			"is empty or not set:\n%s\n%s\n%s",
-			streamAPIBaseURLEnvVarName, accountIDEnvVarName, apiKeyEnvVarName))
+			common.StreamAPIBaseURLEnvVarName, common.AccountIDEnvVarName,
+			common.APIKeyEnvVarName))
 	}
 
 	url := t.getPriceStreamURL(baseURL, accountID)

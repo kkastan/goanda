@@ -32,7 +32,7 @@ func main() {
 
 func candleClient() {
 	fmt.Printf("Recent Candles...\n")
-	data := candles.GetRecent()
+	data := candles.GetRecent("EUR_USD", "M", "M1", 10)
 
 	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
 
@@ -42,7 +42,8 @@ func candleClient() {
 	}
 
 	fmt.Printf("\nTime Range Candles...\n")
-	data = candles.GetTimeRange()
+	data = candles.GetTimeRange("EUR_USD", "M", "M15", "2017-09-20T00:00:00.0Z",
+		"2017-09-21T00:00:00.0Z")
 
 	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
 
