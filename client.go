@@ -31,7 +31,18 @@ func main() {
 }
 
 func candleClient() {
-	data := candles.Get()
+	fmt.Printf("Recent Candles...\n")
+	data := candles.GetRecent()
+
+	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
+
+	for _, c := range data.Candles {
+		fmt.Printf("%s\t%t\t%d\t%s\t%s\t%s\t%s\n", c.Time, c.Complete, c.Volume,
+			c.Mid.Open, c.Mid.High, c.Mid.Low, c.Mid.Close)
+	}
+
+	fmt.Printf("\nTime Range Candles...\n")
+	data = candles.GetTimeRange()
 
 	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
 
