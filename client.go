@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/kkastan/goanda/candles"
+	"github.com/kkastan/goanda/common"
 	"github.com/kkastan/goanda/ticker"
 )
 
@@ -32,7 +34,16 @@ func main() {
 
 func candleClient() {
 	fmt.Printf("Recent Candles...\n")
-	data := candles.GetRecent("EUR_USD", "M", "M1", 10)
+	count := int32(10)
+
+	cr := &candles.CandleRequest{
+		Price:        "M",
+		Granularity:  "M1",
+		Count:        &count,
+		IncludeFirst: true,
+	}
+
+	data := candles.Get("EUR_USD", cr)
 
 	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
 
@@ -41,10 +52,26 @@ func candleClient() {
 			c.Mid.Open, c.Mid.High, c.Mid.Low, c.Mid.Close)
 	}
 
-	fmt.Printf("\nTime Range Candles...\n")
-	data = candles.GetTimeRange("EUR_USD", "M", "M15", "2017-09-20T00:00:00.0Z",
-		"2017-09-21T00:00:00.0Z")
+	from, err := time.Parse(common.OandaRFC3339Format, "2017-09-20T00:00:00.00000000Z+00:00")
+	if err != nil {
+		panic(err.Error())
+	}
 
+	to, err := time.Parse(common.OandaRFC3339Format, "2017-09-21T00:00:00.00000000Z+00:00")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	cr = &candles.CandleRequest{
+		Price:        "M",
+		Granularity:  "M15",
+		From:         from,
+		To:           to,
+		IncludeFirst: true,
+	}
+
+	fmt.Printf("\nTime Range Candles...\n")
+	data = candles.Get("EUR_USD", cr)
 	fmt.Printf("%s\t%s\n", data.Instrument, data.Granularity)
 
 	for _, c := range data.Candles {
