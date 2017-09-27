@@ -3,6 +3,7 @@ package candles
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -81,7 +82,7 @@ func Get(instrument string, cr *CandleRequest) *CandleResponse {
 	url := fmt.Sprintf("%s/instruments/%s/candles%s",
 		baseURL, instrument, constructCandleParams(cr))
 
-	fmt.Printf("url: %s", url)
+	log.Printf("url: %s", url)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
