@@ -52,12 +52,12 @@ func candleClient() {
 			c.Mid.Open, c.Mid.High, c.Mid.Low, c.Mid.Close)
 	}
 
-	from, err := time.Parse(common.OandaRFC3339Format, "2017-09-20T00:00:00.00000000Z+00:00")
+	from, err := time.Parse(common.OandaRFC3339Format, "2017-09-20T00:00:00.000000000Z+00:00")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	to, err := time.Parse(common.OandaRFC3339Format, "2017-09-21T00:00:00.00000000Z+00:00")
+	to, err := time.Parse(common.OandaRFC3339Format, "2017-09-21T00:00:00.000000000Z+00:00")
 	if err != nil {
 		panic(err.Error())
 	}
