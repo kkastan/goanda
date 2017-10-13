@@ -57,10 +57,29 @@ func SubmitOrder(order *Order) (err error) {
 	return
 }
 
-// TODO unit tests - lost of them
-// test that the stop order and take profit make sense for a long/short order
-// review the Order API and validate that the requested set of options are allowed
 func constructPayloadFromRequest(order *Order) (oop *oandaOrderPayload, err error) {
+
+	if order.Type == MARKET && !(order.TimeInForce == FOK || order.TimeInForce == IOC) {
+		err = fmt.Errorf("market orders can only be FOK or IOC")
+		return
+	}
+
+	if order.Units > 0 &&
+		order.StopLoss > 0 &&
+		order.TakeProfit > 0 &&
+		order.StopLoss >= order.TakeProfit {
+		err = fmt.Errorf("stop loss must be less than the take profit on a long position")
+		return
+	}
+
+	if order.Units < 0 &&
+		order.StopLoss > 0 &&
+		order.TakeProfit > 0 &&
+		order.StopLoss <= order.TakeProfit {
+		err = fmt.Errorf("stop loss must be greater than the take profit on a short position")
+		return
+	}
+
 	oo := &oandaOrder{}
 
 	oo.Type = order.Type
