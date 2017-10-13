@@ -14,7 +14,10 @@ import (
 
 // SubmitOrder ...
 func SubmitOrder(order *Order) (err error) {
-	p := constructPayloadFromRequest(order)
+	p, err := constructPayloadFromRequest(order)
+	if err != nil {
+		return
+	}
 
 	raw, err := json.Marshal(p)
 	if err != nil {
@@ -57,36 +60,36 @@ func SubmitOrder(order *Order) (err error) {
 // TODO unit tests - lost of them
 // test that the stop order and take profit make sense for a long/short order
 // review the Order API and validate that the requested set of options are allowed
-func constructPayloadFromRequest(order *Order) (pw *payloadWrapper) {
-	p := &payload{}
+func constructPayloadFromRequest(order *Order) (oop *oandaOrderPayload, err error) {
+	oo := &oandaOrder{}
 
-	p.Type = order.Type
-	p.Units = strconv.FormatInt(order.Units, 10)
-	p.Instrument = order.Instrument
-	p.PositionFill = DEFAULT
+	oo.Type = order.Type
+	oo.Units = strconv.FormatInt(order.Units, 10)
+	oo.Instrument = order.Instrument
+	oo.PositionFill = DEFAULT
 
 	if order.TimeInForce == "" {
-		p.TimeInForce = FOK
+		oo.TimeInForce = FOK
 	} else {
-		p.TimeInForce = order.TimeInForce
+		oo.TimeInForce = order.TimeInForce
 	}
 
 	if order.StopLoss != 0 {
-		p.StopLossOnFill = &StopLossDetails{
+		oo.StopLossOnFill = &oandaStopLossDetails{
 			Price:       strconv.FormatFloat(order.StopLoss, 'f', 5, 64),
 			TimeInForce: GTC,
 		}
 	}
 
 	if order.TakeProfit != 0 {
-		p.TakeProfitOnFill = &TakeProfitDetails{
+		oo.TakeProfitOnFill = &oandaTakeProfitDetails{
 			Price:       strconv.FormatFloat(order.TakeProfit, 'f', 5, 64),
 			TimeInForce: GTC,
 		}
 	}
 
-	pw = &payloadWrapper{
-		Order: p,
+	oop = &oandaOrderPayload{
+		Order: oo,
 	}
 
 	return

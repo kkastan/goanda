@@ -59,12 +59,12 @@ type Order struct {
 	TakeProfit  float64
 }
 
-type payloadWrapper struct {
-	Order *payload `json:"order"`
+type oandaOrderPayload struct {
+	Order *oandaOrder `json:"order"`
 }
 
 // Payload ...
-type payload struct {
+type oandaOrder struct {
 	Type         Type         `json:"type"`
 	Units        string       `json:"units"`
 	Instrument   string       `json:"instrument"`
@@ -72,14 +72,14 @@ type payload struct {
 	PriceBound   string       `json:"priceBound,omitempty"`
 	PositionFill PositionFill `json:"positionFill"`
 	// TODO: support Client Extensions
-	TakeProfitOnFill       *TakeProfitDetails       `json:"takeProfitOnFill,omitempty"`
-	StopLossOnFill         *StopLossDetails         `json:"stopLossOnFill,omitempty"`
-	TrailingStopLossOnFill *TrailingStopLossDetails `json:"trailingStopLossOnFill,omitempty"`
+	TakeProfitOnFill       *oandaTakeProfitDetails       `json:"takeProfitOnFill,omitempty"`
+	StopLossOnFill         *oandaStopLossDetails         `json:"stopLossOnFill,omitempty"`
+	TrailingStopLossOnFill *oandaTrailingStopLossDetails `json:"trailingStopLossOnFill,omitempty"`
 	// TODO: support Trade Client Extensions
 }
 
 // TakeProfitDetails ...
-type TakeProfitDetails struct {
+type oandaTakeProfitDetails struct {
 	Price       string      `json:"price"`
 	TimeInForce TimeInForce `json:"timeInForce"`
 	GtdTime     string      `json:"gtdTime,omitempty"`
@@ -87,7 +87,7 @@ type TakeProfitDetails struct {
 }
 
 // StopLossDetails ...
-type StopLossDetails struct {
+type oandaStopLossDetails struct {
 	Price       string      `json:"price"`
 	TimeInForce TimeInForce `json:"timeInForce"`
 	GtdTime     string      `json:"gtdTime,omitempty"`
@@ -95,7 +95,7 @@ type StopLossDetails struct {
 }
 
 // TrailingStopLossDetails ...
-type TrailingStopLossDetails struct {
+type oandaTrailingStopLossDetails struct {
 	Distance    string      `json:"distance"`
 	TimeInForce TimeInForce `json:"timeInForce"`
 	GtdTime     string      `json:"gtdTime,omitempty"`
