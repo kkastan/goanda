@@ -12,8 +12,17 @@ import (
 	"github.com/kkastan/goanda/common"
 )
 
+type logger interface {
+	Infof(format string, args ...interface{})
+}
+
+// Orderer ...
+type Orderer struct {
+	Log logger
+}
+
 // SubmitOrder ...
-func SubmitOrder(order *Order) (err error) {
+func (o *Orderer) SubmitOrder(order *Order) (err error) {
 	p, err := constructPayloadFromRequest(order)
 	if err != nil {
 		return
@@ -30,8 +39,10 @@ func SubmitOrder(order *Order) (err error) {
 
 	url := fmt.Sprintf("%s/accounts/%s/orders", baseURL, accountID)
 
-	fmt.Printf("url: %s\n", url)
-	fmt.Printf("output:\n%s\n", string(raw))
+	o.Log.Infof("posting order. url: %s\nbody: %s", url, string(raw))
+
+	// fmt.Printf("url: %s\n", url)
+	// fmt.Printf("output:\n%s\n", string(raw))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(raw))
 	if err != nil {
@@ -49,10 +60,10 @@ func SubmitOrder(order *Order) (err error) {
 
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	o.Log.Infof("response Status: %s", resp.Status)
+	o.Log.Infof("response Headers: %s", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	o.Log.Infof("response Body: %s", string(body))
 
 	return
 }
