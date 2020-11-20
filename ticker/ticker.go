@@ -4,10 +4,15 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
 	"github.com/kkastan/goanda/common"
+)
+
+const (
+	MAX_ERROR_COUNT = 5
 )
 
 // Ticker data structure
@@ -43,37 +48,57 @@ func (t *Ticker) runInternal() {
 	}
 
 	url := t.getPriceStreamURL(baseURL, accountID)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		panic(fmt.Errorf("error creating the request %s", err.Error()))
-	}
 
-	req.Header.Set("Authorization", "Bearer "+bearerToken)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		panic(fmt.Errorf("GET error: %s", err.Error()))
-	}
-
-	reader := bufio.NewReader(resp.Body)
-
-	tick := &Tick{}
-
+	// Outer infinte loop allows us to re-establish the connection to Oanda
+	// if a threshold of errors are exceeded when reading from the server.
 	for {
-		line, err := reader.ReadBytes('\n')
+		log.Println("Establishing connection to Oanda...")
+
+		errorCount := 0
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			panic(fmt.Errorf("reader.ReadBytes: %s", err.Error()))
+			panic(fmt.Errorf("error creating the request %s", err.Error()))
 		}
 
-		if err := json.Unmarshal(line, tick); err != nil {
-			panic(fmt.Errorf("json.Unmarshal: %s", err.Error()))
+		req.Header.Set("Authorization", "Bearer "+bearerToken)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(fmt.Errorf("GET error: %s", err.Error()))
 		}
 
-		if tick.Type == "PRICE" && tick.Tradeable {
-			t.Ticks <- tick
-		}
+		reader := bufio.NewReader(resp.Body)
 
-	}
+		tick := &Tick{}
+
+		// Infinte loop to read each new line as sent from the server. If too many
+		// errors occur then break out of this loop to have the connection
+		// re-established.
+		for {
+			if errorCount > MAX_ERROR_COUNT {
+				log.Printf("Exceeded %s errors in reading from Oanda. Re-establishing connection to Oanda.")
+				break
+			}
+
+			line, err := reader.ReadBytes('\n')
+			if err != nil {
+				log.Printf("reader.ReadBytes [%v]: %s", line, err.Error())
+				errorCount += 1
+				continue
+			}
+
+			if err := json.Unmarshal(line, tick); err != nil {
+				log.Printf("json.Unmarshal: %s", err.Error())
+				errorCount += 1
+				continue
+			}
+
+			if tick.Type == "PRICE" && tick.Tradeable {
+				t.Ticks <- tick
+			}
+
+		} // end inner infinte loop
+	} // end outer infinte loop
 }
 
 func (t *Ticker) getPriceStreamURL(baseURL, accountID string) (url string) {
