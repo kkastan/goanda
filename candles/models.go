@@ -27,3 +27,9 @@ type CandleStickData struct {
 	Low   string `json:"l"`
 	Close string `json:"c"`
 }
+
+// LatestCandlesResponse encapsulates the array of latest candles
+// returned by the Oanda v3/accounts/{accountID}/candles/latest api.
+type LatestCandlesResponse struct {
+	LatestCandles []CandleResponse `json:"latestCandles"`
+}
