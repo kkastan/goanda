@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -37,6 +38,9 @@ func main() {
 		return
 	case args[0] == "market":
 		marketOrderClient()
+		return
+	case args[0] == "latest":
+		latestCandleClient()
 		return
 	}
 
@@ -146,4 +150,13 @@ func tickerClient() {
 			fmt.Printf("%s\t%s\tBID/ASK\t%f/%f\n", tick.Time, tick.Instrument, tick.GetBid(), tick.GetAsk())
 		}
 	}
+}
+
+func latestCandleClient() {
+	data := candles.GetLatest("EUR_USD:M5:BMA,EUR_GBP:M5:BMA,GBP_USD:M5:BMA")
+	str, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s\n", str)
 }

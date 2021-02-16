@@ -103,3 +103,34 @@ func Get(instrument string, cr *CandleRequest) *CandleResponse {
 
 	return candleResponse
 }
+
+// GetLatest is a light wrapper of the v3/accounts/{accountID}/candles/latest
+// api. See https://developer.oanda.com/rest-live-v20/pricing-ep/
+func GetLatest(candleSpecs string) *LatestCandlesResponse {
+	baseURL := os.Getenv(common.FxAPIBaseURLEnvVarName)
+	accountID := os.Getenv(common.AccountIDEnvVarName)
+	url := fmt.Sprintf("%s/accounts/%s/candles/latest?candleSpecifications=%s",
+		baseURL, accountID, candleSpecs)
+
+	log.Printf("url: %s", url)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		panic(fmt.Errorf("error creating the request %s", err.Error()))
+	}
+
+	bearerToken := os.Getenv("OANDA_API_KEY")
+	req.Header.Set("Authorization", "Bearer "+bearerToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(fmt.Errorf("GET error: %s", err.Error()))
+	}
+
+	latestCandlesResponse := &LatestCandlesResponse{}
+	defer resp.Body.Close()
+	json.NewDecoder(resp.Body).Decode(latestCandlesResponse)
+
+	return latestCandlesResponse
+}
