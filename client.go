@@ -141,7 +141,7 @@ func candleClient() {
 
 func tickerClient() {
 	ch := make(chan *ticker.Tick)
-	t := ticker.New("EUR_USD,GBP_USD", ch)
+	t := ticker.New("EUR_USD,GBP_USD,EUR_GBP", ch)
 	t.Run()
 
 	for {

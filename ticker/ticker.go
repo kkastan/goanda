@@ -76,20 +76,22 @@ func (t *Ticker) runInternal() {
 		// re-established.
 		for {
 			if errorCount > MAX_ERROR_COUNT {
-				log.Printf("Exceeded %s errors in reading from Oanda. Re-establishing connection to Oanda.")
+				log.Printf("Exceeded %d errors in reading from Oanda. Re-establishing connection to Oanda.", errorCount)
 				break
 			}
 
 			line, err := reader.ReadBytes('\n')
 			if err != nil {
 				log.Printf("reader.ReadBytes [%v]: %s", line, err.Error())
-				errorCount += 1
+				errorCount++
 				continue
 			}
 
+			// fmt.Printf("%s\n", line)
+
 			if err := json.Unmarshal(line, tick); err != nil {
 				log.Printf("json.Unmarshal: %s", err.Error())
-				errorCount += 1
+				errorCount++
 				continue
 			}
 
