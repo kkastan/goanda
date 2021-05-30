@@ -10,6 +10,7 @@ import (
 	"github.com/kkastan/goanda/candles"
 	"github.com/kkastan/goanda/common"
 	"github.com/kkastan/goanda/order"
+	"github.com/kkastan/goanda/positions"
 	"github.com/kkastan/goanda/ticker"
 )
 
@@ -42,10 +43,27 @@ func main() {
 	case args[0] == "latest":
 		latestCandleClient()
 		return
+	case args[0] == "positions":
+		openPositionsClient()
+		return
 	}
 
 	fmt.Printf("Unrecognized option: %s\n", args[0])
 	os.Exit(-1)
+}
+
+func openPositionsClient() {
+	l := &logger{}
+	client := &positions.Client{
+		Log: l,
+	}
+
+	results, err := client.GetOpenPositions()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(results)
 }
 
 func marketOrderClient() {
