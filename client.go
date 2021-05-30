@@ -86,7 +86,11 @@ func marketOrderClient() {
 			TakeProfit:  tp,
 		}
 
-		o.SubmitOrder(orderRequest)
+		resp, err := o.SubmitOrder(orderRequest)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(resp)
 	}
 
 }

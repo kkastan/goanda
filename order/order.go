@@ -21,8 +21,11 @@ type Orderer struct {
 	Log logger
 }
 
+// OandaOrderResponse ...
+type OandaOrderResponse map[string]interface{}
+
 // SubmitOrder ...
-func (o *Orderer) SubmitOrder(order *Order) (err error) {
+func (o *Orderer) SubmitOrder(order *Order) (oresp *OandaOrderResponse, err error) {
 	p, err := constructPayloadFromRequest(order)
 	if err != nil {
 		return
@@ -64,6 +67,17 @@ func (o *Orderer) SubmitOrder(order *Order) (err error) {
 	o.Log.Infof("response Headers: %s", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	o.Log.Infof("response Body: %s", string(body))
+
+	oresp = &OandaOrderResponse{}
+	err = json.Unmarshal(body, oresp)
+
+	if resp.StatusCode != 201 {
+		if errorMessage, ok := (*oresp)["errorMessage"]; ok {
+			err = fmt.Errorf(errorMessage.(string))
+		} else {
+			err = fmt.Errorf("Oanda orders endpoint returned status %d expected 201", resp.StatusCode)
+		}
+	}
 
 	return
 }
