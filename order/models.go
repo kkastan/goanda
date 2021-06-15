@@ -51,12 +51,15 @@ const (
 
 // Order ...
 type Order struct {
-	Type        Type
-	Units       int64
-	Instrument  string
-	TimeInForce TimeInForce
-	StopLoss    float64
-	TakeProfit  float64
+	Type          Type
+	Units         int64
+	Instrument    string
+	TimeInForce   TimeInForce
+	StopLoss      float64
+	TakeProfit    float64
+	ClientID      string
+	ClientTag     string
+	ClientComment string
 }
 
 type oandaOrderPayload struct {
@@ -65,39 +68,44 @@ type oandaOrderPayload struct {
 
 // Payload ...
 type oandaOrder struct {
-	Type         Type         `json:"type"`
-	Units        string       `json:"units"`
-	Instrument   string       `json:"instrument"`
-	TimeInForce  TimeInForce  `json:"timeInForce"`
-	PriceBound   string       `json:"priceBound,omitempty"`
-	PositionFill PositionFill `json:"positionFill"`
-	// TODO: support Client Extensions
+	Type                   Type                          `json:"type"`
+	Units                  string                        `json:"units"`
+	Instrument             string                        `json:"instrument"`
+	TimeInForce            TimeInForce                   `json:"timeInForce"`
+	PriceBound             string                        `json:"priceBound,omitempty"`
+	PositionFill           PositionFill                  `json:"positionFill"`
 	TakeProfitOnFill       *oandaTakeProfitDetails       `json:"takeProfitOnFill,omitempty"`
 	StopLossOnFill         *oandaStopLossDetails         `json:"stopLossOnFill,omitempty"`
 	TrailingStopLossOnFill *oandaTrailingStopLossDetails `json:"trailingStopLossOnFill,omitempty"`
-	// TODO: support Trade Client Extensions
+	ClientExtensions       *oandaClientExtensions        `json:"clientExtensions,omitempty"`
 }
 
 // TakeProfitDetails ...
 type oandaTakeProfitDetails struct {
-	Price       string      `json:"price"`
-	TimeInForce TimeInForce `json:"timeInForce"`
-	GtdTime     string      `json:"gtdTime,omitempty"`
-	// TODO: support Client Extensions
+	Price            string                 `json:"price"`
+	TimeInForce      TimeInForce            `json:"timeInForce"`
+	GtdTime          string                 `json:"gtdTime,omitempty"`
+	ClientExtensions *oandaClientExtensions `json:"clientExtensions,omitempty"`
 }
 
 // StopLossDetails ...
 type oandaStopLossDetails struct {
-	Price       string      `json:"price"`
-	TimeInForce TimeInForce `json:"timeInForce"`
-	GtdTime     string      `json:"gtdTime,omitempty"`
-	// TODO: support Client Extensions
+	Price            string                 `json:"price"`
+	TimeInForce      TimeInForce            `json:"timeInForce"`
+	GtdTime          string                 `json:"gtdTime,omitempty"`
+	ClientExtensions *oandaClientExtensions `json:"clientExtensions,omitempty"`
 }
 
 // TrailingStopLossDetails ...
 type oandaTrailingStopLossDetails struct {
-	Distance    string      `json:"distance"`
-	TimeInForce TimeInForce `json:"timeInForce"`
-	GtdTime     string      `json:"gtdTime,omitempty"`
-	// TODO: support Client Extensions
+	Distance         string                 `json:"distance"`
+	TimeInForce      TimeInForce            `json:"timeInForce"`
+	GtdTime          string                 `json:"gtdTime,omitempty"`
+	ClientExtensions *oandaClientExtensions `json:"clientExtensions,omitempty"`
+}
+
+type oandaClientExtensions struct {
+	ID      string `json:"id"`
+	Tag     string `json:"tag"`
+	Comment string `json:"comment,omitempty"`
 }

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/kkastan/goanda/candles"
@@ -46,10 +47,54 @@ func main() {
 	case args[0] == "positions":
 		openPositionsClient()
 		return
+	case args[0] == "order":
+		price, err := strconv.ParseFloat(args[1], 64)
+		if err != nil {
+			panic(err)
+		}
+		orderClient(price)
+		return
 	}
 
 	fmt.Printf("Unrecognized option: %s\n", args[0])
 	os.Exit(-1)
+}
+
+func orderClient(price float64) {
+
+	log := &logger{}
+	o := &order.Orderer{
+		Log: log,
+	}
+
+	log.Infof("orderClient called with price: %f", price)
+
+	var quantity int64 = 100
+	stop := price * 0.9995
+	profit := price * 1.001
+
+	log.Infof("stop loss:\t%f", stop)
+	log.Infof("take profit:\t%f", profit)
+
+	orderRequest := &order.Order{
+		Type:        order.MARKET,
+		Units:       quantity,
+		Instrument:  "GBP_USD",
+		TimeInForce: order.FOK,
+		StopLoss:    stop,
+		TakeProfit:  profit,
+		ClientID:    "client.id.1001",
+		ClientTag:   "clinet.tag.1002",
+	}
+
+	log.Infof("%v", orderRequest)
+
+	resp, err := o.SubmitOrder(orderRequest)
+	if err != nil {
+		log.Infof("error: %v\n", err)
+	}
+
+	log.Infof("%v", resp)
 }
 
 func openPositionsClient() {

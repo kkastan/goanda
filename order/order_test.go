@@ -90,3 +90,49 @@ func Test_constructPayloadFromRequest_MarketTimeInForce(t *testing.T) {
 		}
 	}
 }
+
+func Test_constructPayloadFromRequestClientExtensionsWithComment(t *testing.T) {
+
+	oo := &Order{
+		Type:          MARKET,
+		Units:         10000,
+		Instrument:    "EUR_USD",
+		TimeInForce:   FOK,
+		StopLoss:      1.17432,
+		TakeProfit:    1.1752,
+		ClientID:      "client.id",
+		ClientTag:     "client.tag",
+		ClientComment: "client.comment",
+	}
+
+	p, err := constructPayloadFromRequest(oo)
+
+	if assert.Nil(t, err) {
+		if assert.NotNil(t, p) {
+			if assert.NotNil(t, p.Order) {
+				if assert.NotNil(t, p.Order.ClientExtensions) {
+					assert.Equal(t, "client.id", p.Order.ClientExtensions.ID)
+					assert.Equal(t, "client.tag", p.Order.ClientExtensions.Tag)
+					assert.Equal(t, "client.comment", p.Order.ClientExtensions.Comment)
+				}
+
+				if assert.NotNil(t, p.Order.TakeProfitOnFill) {
+					if assert.NotNil(t, p.Order.TakeProfitOnFill.ClientExtensions) {
+						assert.Equal(t, "client.id.take_profit", p.Order.TakeProfitOnFill.ClientExtensions.ID)
+						assert.Equal(t, "client.tag.take_profit", p.Order.TakeProfitOnFill.ClientExtensions.Tag)
+						assert.Equal(t, "client.comment.take_profit", p.Order.TakeProfitOnFill.ClientExtensions.Comment)
+					}
+				}
+
+				if assert.NotNil(t, p.Order.StopLossOnFill) {
+					if assert.NotNil(t, p.Order.StopLossOnFill.ClientExtensions) {
+						assert.Equal(t, "client.id.stop_loss", p.Order.StopLossOnFill.ClientExtensions.ID)
+						assert.Equal(t, "client.tag.stop_loss", p.Order.StopLossOnFill.ClientExtensions.Tag)
+						assert.Equal(t, "client.comment.stop_loss", p.Order.StopLossOnFill.ClientExtensions.Comment)
+					}
+				}
+			}
+		}
+	}
+
+}
