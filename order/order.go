@@ -132,6 +132,41 @@ func constructPayloadFromRequest(order *Order) (oop *oandaOrderPayload, err erro
 		}
 	}
 
+	if order.ClientID != "" && order.ClientTag != "" {
+		oce := &oandaClientExtensions{
+			ID:  order.ClientID,
+			Tag: order.ClientTag,
+		}
+		if order.ClientComment != "" {
+			oce.Comment = order.ClientComment
+		}
+
+		oo.ClientExtensions = oce
+
+		if oo.StopLossOnFill != nil {
+			sloce := &oandaClientExtensions{
+				ID:  order.ClientID + ".stop_loss",
+				Tag: order.ClientTag + ".stop_loss",
+			}
+			if order.ClientComment != "" {
+				sloce.Comment = order.ClientComment + ".stop_loss"
+			}
+			oo.StopLossOnFill.ClientExtensions = sloce
+		}
+
+		if oo.TakeProfitOnFill != nil {
+			tpoce := &oandaClientExtensions{
+				ID:  order.ClientID + ".take_profit",
+				Tag: order.ClientTag + ".take_profit",
+			}
+			if order.ClientComment != "" {
+				tpoce.Comment = order.ClientComment + ".take_profit"
+			}
+			oo.TakeProfitOnFill.ClientExtensions = tpoce
+		}
+
+	}
+
 	oop = &oandaOrderPayload{
 		Order: oo,
 	}
